@@ -1,0 +1,217 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Don't Open Strange Links</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #050505;
+  color: white;
+  font-family: Arial, sans-serif;
+  display: grid;
+  place-items: center;
+  overflow-x: hidden;
+}
+
+body.crash {
+  animation: flicker .15s infinite;
+  background: repeating-linear-gradient(
+    0deg, #150000, #150000 3px, #300000 4px, #050505 7px
+  );
+}
+
+@keyframes flicker {
+  0% { filter: hue-rotate(0deg); }
+  50% { filter: hue-rotate(50deg) contrast(1.5); }
+  100% { filter: invert(.12); }
+}
+
+.card {
+  position: relative;
+  z-index: 2;
+  width: min(92%, 480px);
+  padding: 28px 22px;
+  text-align: center;
+  background: #101010ee;
+  border: 2px solid #ff2525;
+  border-radius: 16px;
+  box-shadow: 0 0 30px #ff000055;
+}
+
+h1 {
+  color: #ff3333;
+  text-shadow: 2px 2px black;
+}
+
+input, button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+input {
+  background: #080808;
+  border: 1px solid #777;
+  color: white;
+  text-align: center;
+}
+
+button {
+  background: #e21b1b;
+  color: white;
+  border: 0;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover { background: #ff4141; }
+
+#result { display: none; }
+
+#message {
+  font-size: clamp(28px, 8vw, 48px);
+  color: #ff2525;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+  animation: shake .18s infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translate(0); }
+  25% { transform: translate(3px, -2px); }
+  75% { transform: translate(-3px, 2px); }
+}
+
+.meme {
+  font-size: 95px;
+  animation: spin .8s infinite alternate;
+}
+
+@keyframes spin {
+  from { transform: rotate(-12deg) scale(.9); }
+  to { transform: rotate(12deg) scale(1.15); }
+}
+
+#status {
+  color: #ff6565;
+  min-height: 22px;
+}
+</style>
+</head>
+
+<body>
+<div class="card">
+  <h1>⚠ DON'T OPEN STRANGE LINKS</h1>
+  <p>Unknown links can be dangerous. Proceed carefully!</p>
+
+  <div id="lock">
+    <h3>Enter Access Code</h3>
+    <input id="code" type="password"
+      inputmode="numeric" maxlength="4"
+      placeholder="Enter 4-digit code">
+    <button onclick="unlock()">UNLOCK</button>
+    <p id="status"></p>
+  </div>
+
+  <div id="result">
+    <div class="meme">😂</div>
+    <h2 id="message">wastakanahuya</h2>
+    <p>⚠ SYSTEM GLITCH DETECTED ⚠</p>
+    <p>Relax 😂 — this is only a visual prank.</p>
+
+    <button onclick="playSound()">🔊 PLAY CRASH SOUND</button>
+    <button onclick="stopEffect()">STOP EFFECT</button>
+    <button onclick="openMemes()">😂 OPEN MEME COLLECTION</button>
+  </div>
+</div>
+
+<script>
+let audioContext;
+let soundTimer;
+
+function unlock() {
+  if (document.getElementById("code").value === "1811") {
+    document.getElementById("lock").style.display = "none";
+    document.getElementById("result").style.display = "block";
+    document.body.classList.add("crash");
+  } else {
+    document.getElementById("status").textContent =
+      "❌ Wrong code! Try again.";
+  }
+}
+
+document.getElementById("code").addEventListener("keydown", e => {
+  if (e.key === "Enter") unlock();
+});
+
+function playSound() {
+  stopSound();
+
+  const AudioCtx = window.AudioContext ||
+                   window.webkitAudioContext;
+  if (!AudioCtx) {
+    alert("Audio is not supported by this browser.");
+    return;
+  }
+
+  audioContext = new AudioCtx();
+
+  function glitch() {
+    if (!audioContext || audioContext.state === "closed") return;
+
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    osc.type = Math.random() > 0.5 ? "sawtooth" : "square";
+    osc.frequency.value = 80 + Math.random() * 900;
+    gain.gain.setValueAtTime(0.08, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.001, audioContext.currentTime + 0.12
+    );
+
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.12);
+  }
+
+  glitch();
+  soundTimer = setInterval(glitch, 180);
+}
+
+function stopSound() {
+  if (soundTimer) clearInterval(soundTimer);
+  soundTimer = null;
+
+  if (audioContext && audioContext.state !== "closed") {
+    audioContext.close();
+  }
+  audioContext = null;
+}
+
+function stopEffect() {
+  stopSound();
+  document.body.classList.remove("crash");
+}
+
+function openMemes() {
+  window.open(
+    "https://memescreens.com/",
+    "_blank",
+    "noopener,noreferrer"
+  );
+}
+</script>
+</body>
+</html>
+# NEVER-OPEN-STRANGE-LINKS
+REGRET AFTER OPENING
